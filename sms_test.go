@@ -1,15 +1,10 @@
-# Alidayu
-Alidayu communication **Go** library. 
+package Alidayu
 
-The current version supports the `sms` function.  
+import (
+	"testing"
+)
 
-*API documents:*
-1. [Signature method](http://open.taobao.com/doc.htm?docId=101617&docType=1)
-2. [Sms sending](http://open.taobao.com/api.htm?docId=25450&docType=2)
-
-**Example Code: **
-
-```
+func TestSMS(t *testing.T) {
 	smsConfig := SMSConfig{
 		APPKey:       "",
 		APPSecret:    "",
@@ -31,7 +26,3 @@ The current version supports the `sms` function.
 		t.Errorf("status code is %d, error is %s", statusCode, err.Error())
 	}
 }
-
-```
-
- *Similar API:* [Aliyuncs API](https://github.com/OscarZhou/Aliyuncs)

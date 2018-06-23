@@ -3,11 +3,13 @@ package Alidayu
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 )
 
+// DoRequest sends a http request
 func DoRequest(method, url string, body []byte) (int, error) {
 	var reader io.Reader
 	switch method {
@@ -46,5 +48,7 @@ func DoRequest(method, url string, body []byte) (int, error) {
 	if err != nil {
 		return resp.StatusCode, errors.New(resp.Status + "," + string(respBody))
 	}
+
+	fmt.Println(string(respBody))
 	return resp.StatusCode, nil
 }

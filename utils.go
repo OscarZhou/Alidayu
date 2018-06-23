@@ -14,8 +14,8 @@ import (
 	"strings"
 )
 
-// SignTopRequest signs the params
-func SignTopRequest(paramMap map[string]string, secret, signMethod string) (string, error) {
+// signTopRequest signs the params that the request needs
+func signTopRequest(paramMap map[string]string, secret, signMethod string) (string, error) {
 	var (
 		keys      []string
 		encrypted []byte
@@ -46,9 +46,9 @@ func SignTopRequest(paramMap map[string]string, secret, signMethod string) (stri
 	return hex.EncodeToString(encrypted), nil
 }
 
-// ExtractNotNullKeys gets the names of the struct variables
+// extractNotNullKeys gets the names of the struct variables
 // whose values are not null.
-func ExtractNotNullKeys(params interface{}) ([]string, error) {
+func extractNotNullKeys(params interface{}) ([]string, error) {
 	var keys []string
 	s := reflect.ValueOf(params)
 	if s.IsValid() && s.Kind() == reflect.Struct {
@@ -73,8 +73,13 @@ func ExtractNotNullKeys(params interface{}) ([]string, error) {
 	return keys, nil
 }
 
-// GenerateMap generates a new map[string]string variable
-func GenerateMap(params interface{}, keyMap map[string]bool) (map[string]string, error) {
+// generateMap generates a new map[string]string variable
+func generateMap(params interface{}, keys []string) (map[string]string, error) {
+	keyMap := make(map[string]bool)
+	for _, v := range keys {
+		keyMap[v] = true
+	}
+
 	paramMap := make(map[string]string)
 	pp := reflect.ValueOf(params)
 	if pp.IsValid() {
@@ -107,7 +112,7 @@ func GenerateMap(params interface{}, keyMap map[string]bool) (map[string]string,
 	return paramMap, nil
 }
 
-// encryptMD5 encrypts message with MD5
+// encryptMD5 encrypts message by MD5
 func encryptMD5(plainText string) ([]byte, error) {
 	if plainText == "" {
 		return nil, errors.New("plain text can not be empty")
@@ -118,7 +123,7 @@ func encryptMD5(plainText string) ([]byte, error) {
 	return h.Sum(nil), nil
 }
 
-// encryptHMAC encrypts message with hmac
+// encryptHMAC encrypts message by hmac
 func encryptHMAC(plainText, secret string) ([]byte, error) {
 	mac := hmac.New(sha256.New, []byte(secret))
 	mac.Write([]byte(plainText))

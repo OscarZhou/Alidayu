@@ -8,11 +8,13 @@ import (
 )
 
 type SMS struct {
+	URL       string
 	APPKey    string
 	APPSecret string
 	SMSParam  SMSParam
 }
 
+// NewSMS creates a sms handler
 func NewSMS(config SMSConfig) (*SMS, error) {
 	if config.APPKey == "" || config.APPSecret == "" {
 		return nil, errors.New("key and secret can not be empty")
@@ -32,6 +34,7 @@ func NewSMS(config SMSConfig) (*SMS, error) {
 		V:              "2.0",
 	}
 	sms := &SMS{
+		URL:       "https://eco.taobao.com/router/rest",
 		APPKey:    config.APPKey,
 		APPSecret: config.APPSecret,
 		SMSParam:  smsParam,
@@ -39,37 +42,27 @@ func NewSMS(config SMSConfig) (*SMS, error) {
 	return sms, nil
 }
 
+// SendSMS sends sms request
 func (sms *SMS) SendSMS() (int, error) {
-	url := "https://eco.taobao.com/router/rest"
-
 	body, err := sms.GetURLQuery()
 	if err != nil {
 		return 500, err
 	}
-
-	return DoRequest("POST", url, []byte(body))
+	return DoRequest("POST", sms.URL, []byte(body))
 }
 
-// Sign generates the body that the http request needs
+// GetURLQuery generates the body that the http request needs
 func (sms *SMS) GetURLQuery() (string, error) {
-	var keys []string
-
-	k, err := ExtractNotNullKeys(sms.SMSParam)
+	keys, err := extractNotNullKeys(sms.SMSParam)
 	if err != nil {
 		return "", err
 	}
-	keys = append(keys, k...)
 
-	keyMap := make(map[string]bool)
-	for _, v := range keys {
-		keyMap[v] = true
-	}
-
-	pMap, err := GenerateMap(sms.SMSParam, keyMap)
+	pMap, err := generateMap(sms.SMSParam, keys)
 	if err != nil {
 		return "", err
 	}
-	sms.SMSParam.Sign, err = SignTopRequest(pMap, sms.APPSecret, sms.SMSParam.SignMethod)
+	sms.SMSParam.Sign, err = signTopRequest(pMap, sms.APPSecret, sms.SMSParam.SignMethod)
 	if err != nil {
 		return "", err
 	}
