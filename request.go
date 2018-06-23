@@ -3,7 +3,6 @@ package Alidayu
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -38,9 +37,8 @@ func DoRequest(method, url string, body []byte) (int, error) {
 	if err != nil {
 		return resp.StatusCode, errors.New(resp.Status)
 	}
-
 	defer resp.Body.Close()
-	if resp.StatusCode > 300 && resp.StatusCode < 200 {
+	if resp.StatusCode > 300 || resp.StatusCode < 200 {
 		return resp.StatusCode, errors.New(resp.Status)
 	}
 
@@ -48,7 +46,5 @@ func DoRequest(method, url string, body []byte) (int, error) {
 	if err != nil {
 		return resp.StatusCode, errors.New(resp.Status + "," + string(respBody))
 	}
-
-	fmt.Println(string(respBody))
 	return resp.StatusCode, nil
 }
